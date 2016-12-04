@@ -21,8 +21,13 @@ def import_movies
 end
 
 def import_times
-	#"Ballyskillen Opera House, The" (1980)			30	(6 episodes)
-	time_re = /^(#{$title}) \s+ \(([0-9]+)\) \s+ (?:[a-z]+:)?([0-9]+)/ix
+	# "#ATown" (2014) {Kayaking Adventure (#1.5)}		9	(approx.)
+	# Confinement (2008)					USA:8	(approx.)
+  # "#LawstinWoods" (2013) {The Loop & Rocks (#1.9)} {{SUSPENDED}}	USA:20
+  # Confissıes de Adolescente (2013)			96
+  # Conflict (1988) (V)					99
+  # Conflict (1988) (V)					USA:89	(DVD version)
+	time_re = /^([^\t]*)\s+) \s+ (?:[a-z]+:)?([0-9]+)/i
 	i = 0
 
 	stmt = $db.prepare("UPDATE Movies set length=? WHERE title=? AND year=?;")
