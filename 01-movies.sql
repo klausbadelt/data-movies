@@ -27,6 +27,16 @@ CREATE TABLE Genres (
   genre varchar(50)
 );
 
+CREATE TABLE Distributors (
+  id INTEGER PRIMARY KEY,
+  movie_id integer,
+  distributor varchar(250),
+  year integer,
+  territory varchar(50),
+  rights varchar(50),
+  info varchar(50)
+);
+
 CREATE INDEX id on Movies (id);
 CREATE INDEX titleIndex on Movies (title_index);
 
@@ -35,3 +45,6 @@ CREATE INDEX rmid on Ratings (movie_id);
 
 CREATE INDEX gid on Genres (id);
 CREATE INDEX gmid on Genres (movie_id);
+
+CREATE INDEX did on Distributors (id);
+CREATE INDEX dmid on Distributors (movie_id);
