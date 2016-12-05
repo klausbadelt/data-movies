@@ -23,26 +23,49 @@ class MovieImportTest < Minitest::Test
     assert_includes columns, 'title_index'
     assert_includes columns, 'year_from'
     assert_includes columns, 'year_to'
+    assert_includes columns, 'title'
+    assert_includes columns, 'season'
+    assert_includes columns, 'episode'
   end
 
-  def test_import_tv
+  def test_movies_tv
     @import.movies(StringIO.new '"#1 Single" (2006) {Cats and Dogs (#1.4)}		2006')
 
     assert_equal [['"#1 Single" (2006) {Cats and Dogs (#1.4)}', 2006, 0]],
-      @db.execute("select title_index, year_from, year_to from movies")
+      @db.execute("SELECT title_index, year_from, year_to FROM movies")
   end
 
-  def test_import_tv_with_year_to
+  def test_movies_tv_with_year_to
     @import.movies(StringIO.new '"#2WheelzNHeelz" (2017)					2017-????')
 
     assert_equal [['"#2WheelzNHeelz" (2017)', 2017, 0]],
-      @db.execute("select title_index, year_from, year_to from movies")
+      @db.execute("SELECT title_index, year_from, year_to FROM movies")
   end
 
-  def test_import_tv_with_undef_year
+  def test_movies_tv_with_undef_year
     @import.movies(StringIO.new '"#15SecondScare" (2015) {Shriek (#1.13)}		????')
 
     assert_equal [['"#15SecondScare" (2015) {Shriek (#1.13)}', 0, 0]],
-      @db.execute("select title_index, year_from, year_to from movies")
+      @db.execute("SELECT title_index, year_from, year_to FROM movies")
   end
+
+  def test_movies_tv_episode_title
+    @import.movies(StringIO.new '"10 Grand in Your Hand" (2009) {A Warm & Welcoming Kitchen (#1.10)}	2009')
+    assert_equal [['A Warm & Welcoming Kitchen']],
+      @db.execute("SELECT title FROM movies")
+  end
+
+  def test_movies_tv_season_and_episode_number
+    @import.movies(StringIO.new '"10 Grand in Your Hand" (2009) {A Warm & Welcoming Kitchen (#1.10)}	2009')
+
+    assert_equal [[1,10]],
+      @db.execute("SELECT season, episode FROM movies")
+  end
+
+  def test_movies_title
+    skip "Movie title import missing"
+    @import.movies(StringIO.new 'Bouge pas! (2016)					2016')
+    assert_equal [['Bouge pas!']], @db.execute("SELECT title FROM movies")
+  end
+
 end
