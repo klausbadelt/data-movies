@@ -81,8 +81,14 @@ class MovieDbImportTest < Minitest::Test
 
   def test_movies_title_wo_date
     @import.movies(StringIO.new 'Dennis Wants More Than Tennis (????)			????')
-    assert_equal [['Dennis Wants More Than Tennis']],
-      @db.execute("SELECT title FROM movies")
+    assert_equal [['Dennis Wants More Than Tennis',0]],
+      @db.execute("SELECT title, year_from FROM movies")
+  end
+
+  def test_movies_title_w_curly_brackets
+    @import.movies(StringIO.new 'Dependence (2014) {{SUSPENDED}}				2014')
+    assert_equal [['Dependence',2014]],
+      @db.execute("SELECT title, year_from FROM movies")
   end
 
 end
