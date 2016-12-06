@@ -1,10 +1,10 @@
 require 'test_helper'
-require 'movie_import'
+require 'movie_db_import'
 
-class MovieImportTest < Minitest::Test
+class MovieDbImportTest < Minitest::Test
   def setup
     @db = SQLite3::Database.new ':memory:'
-    @import = MovieImport.new @db
+    @import = MovieDbImport.new @db
 
     # Redirect stderr and stdout
     @stdout, @stderr                   = StringIO.new, StringIO.new
@@ -15,6 +15,11 @@ class MovieImportTest < Minitest::Test
   def teardown
     $stdout, $stderr                   = @original_stdout, @original_stderr
     @original_stdout, @original_stderr = nil, nil
+  end
+
+  def test_movies_table_exists
+    assert_equal [['movies']],
+      @db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='movies';")
   end
 
   def test_movies_columns
@@ -62,10 +67,22 @@ class MovieImportTest < Minitest::Test
       @db.execute("SELECT season, episode FROM movies")
   end
 
+  def test_movies_tv_title
+    @import.movies(StringIO.new '"Ed Mort" (2011)					2011-????')
+    assert_equal [['Ed Mort']],
+      @db.execute("SELECT title FROM movies")
+  end
+
   def test_movies_title
-    skip "Movie title import missing"
     @import.movies(StringIO.new 'Bouge pas! (2016)					2016')
-    assert_equal [['Bouge pas!']], @db.execute("SELECT title FROM movies")
+    assert_equal [['Bouge pas!']],
+      @db.execute("SELECT title FROM movies")
+  end
+
+  def test_movies_title_wo_date
+    @import.movies(StringIO.new 'Dennis Wants More Than Tennis (????)			????')
+    assert_equal [['Dennis Wants More Than Tennis']],
+      @db.execute("SELECT title FROM movies")
   end
 
 end
